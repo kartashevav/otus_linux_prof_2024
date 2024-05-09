@@ -1,8 +1,13 @@
+```
 Загрузил машину с ядром 6.8.0-31-generic
 vagrant@ubuntu:~$ uname -r
 6.8.0-31-generic
+```
+```
 Дальше, по инструкции с https://phoenixnap.com/kb/build-linux-kernel собрал ядро из исходников и обновил, при запуске машины с новым ядром столкнулся с "Kernel panic - not syncing: System is deadlocked on memory".
-Нагуглил, что нужно дать машине больше оперативки, добавил и все поднялос.
+Нагуглил, что нужно дать машине больше оперативки, добавил и все поднялось.
+```
+```
 Давал такие команды:
 wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.8.9.tar.xz
 tar xvf linux-6.8.9.tar.xz
@@ -15,6 +20,9 @@ scripts/config --disable SYSTEM_TRUSTED_KEYS
 scripts/config --disable SYSTEM_REVOCATION_KEYS
 make
 sudo make modules_install
+```
+```
+Финальный вывод команды установки нового ядра
 vagrant@ubuntu:~/linux-6.8.9$ sudo make install
   INSTALL /boot
 run-parts: executing /etc/kernel/postinst.d/dkms 6.8.9 /boot/vmlinuz-6.8.9
@@ -47,6 +55,9 @@ Check GRUB_DISABLE_OS_PROBER documentation entry.
 Adding boot menu entry for UEFI Firmware Settings ...
 done
 vagrant@ubuntu:~/linux-6.8.9$ sudo reboot
-
+```
+```
+После загрузки проверяем что ядро обновилос.
 vagrant@ubuntu:~$ uname -mrs
 Linux 6.8.9 x86_64
+```
