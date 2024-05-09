@@ -61,3 +61,19 @@ vagrant@ubuntu:~/linux-6.8.9$ sudo reboot
 vagrant@ubuntu:~$ uname -mrs
 Linux 6.8.9 x86_64
 ```
+```
+Проверим работу shared folders
+Оставил настройку shared folders по умолчанию, то есть default: /vagrant => D:/VM_vagrant/test_vm
+Создал в папке test_vm текстовый файл test.txt, проверим что он появился в папке виртуальной машины
+vagrant@ubuntu:~$ cd /vagrant/
+vagrant@ubuntu:/vagrant$ ls -la
+total 9
+drwxrwxrwx  1 vagrant vagrant    0 May  9 20:11 .
+drwxr-xr-x 24 root    root    4096 May  9 12:49 ..
+-rwxrwxrwx  1 vagrant vagrant   19 May  9 20:13 README.md
+-rwxrwxrwx  1 vagrant vagrant    9 May  9 20:11 test.txt
+drwxrwxrwx  1 vagrant vagrant    0 May  9 20:13 .vagrant
+-rwxrwxrwx  1 vagrant vagrant 3485 Jan  1  1970 Vagrantfile
+
+shared folders - работает
+```
