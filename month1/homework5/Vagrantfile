@@ -1,0 +1,43 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "generic/ubuntu2204"
+  config.vm.host_name = "mdamd"
+  config.vm.disk :disk, size: "1GB", name: "disk1"
+  config.vm.disk :disk, size: "1GB", name: "disk2"
+  config.vm.disk :disk, size: "1GB", name: "disk3"
+  config.vm.disk :disk, size: "1GB", name: "disk4"
+  config.vm.disk :disk, size: "1GB", name: "disk5"
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "2048"
+    vb.cpus = "1"
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    #apt-get update
+    #sudo apt-get install net-tools
+    sudo mdadm --create --verbose /dev/md127 -l 5 -n 5 /dev/sd{b,c,d,e,f}
+    su
+    sudo echo "DEVICE partitions" > /etc/mdadm/mdadm.conf
+    sudo mdadm --detail --scan --verbose | awk '/ARRAY/ {print}' >> /etc/mdadm/mdadm.conf
+    sudo parted -s /dev/md127 mklabel gpt
+    sudo parted /dev/md127 mkpart primary ext4 0% 20%
+    sudo parted /dev/md127 mkpart primary ext4 20% 40%
+    sudo parted /dev/md127 mkpart primary ext4 40% 60%
+    sudo parted /dev/md127 mkpart primary ext4 60% 80%
+    sudo parted /dev/md127 mkpart primary ext4 80% 100%
+    for i in $(seq 1 5)
+      do
+       FILE="/dev/md127p$i"
+       if [[ -e "$FILE" ]]; then
+        sudo mkfs.ext4 /dev/md127p$i
+        sudo mkdir -p /raid/part$i
+        sudo mount /dev/md127p$i /raid/part$i
+       else
+        echo "$FILE problem"
+       fi
+    done
+  SHELL
+end
