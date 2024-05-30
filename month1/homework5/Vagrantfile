@@ -48,6 +48,7 @@ Vagrant.configure("2") do |config|
         sudo mkfs.ext4 /dev/md127p$i
         sudo mkdir -p /raid/part$i
         sudo mount /dev/md127p$i /raid/part$i
+        echo "/dev/md127p$i /raid/part$i ext4 defaults 0 0" >> /etc/fstab
         sudo ls -l /raid/part$i/
        else
         echo "$FILE problem"
