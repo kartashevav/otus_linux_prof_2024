@@ -1,0 +1,46 @@
+Script started on Sat 01 Jun 2024 08:33:01 PM UTC
+shell-init: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory
+shell-init: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory
+]0;root@lvm:/home/vagrant[?1034h[root@lvm vagrant]# touch /home/file{1..20}
+]0;root@lvm:/home/vagrant[root@lvm vagrant]# lvcreate -L 100MB -s -n home_snap \
+>  dev/VolGroup00/LogVol_Home
+  "dev/VolGroup00/LogVol_Home": Invalid path for Logical Volume.
+  Run `lvcreate --help' for more information.
+]0;root@lvm:/home/vagrant[root@lvm vagrant]# lvcreate -L 100MB -s -n home_snap  dev/VolGroup00/LogVol_Home[C/dev/VolGroup00/LogVol_Home
+  Rounding up size to full physical extent 128.00 MiB
+  Logical volume "home_snap" created.
+]0;root@lvm:/home/vagrant[root@lvm vagrant]# rm -f /home/file{11..20}
+]0;root@lvm:/home/vagrant[root@lvm vagrant]# umount /home
+]0;root@lvm:/home/vagrant[root@lvm vagrant]# lvconvert --merge /dev/VolGroup00/home_snap
+  Merging of volume VolGroup00/home_snap started.
+  VolGroup00/LogVol_Home: Merged: 100.00%
+]0;root@lvm:/home/vagrant[root@lvm vagrant]#  mount /home
+]0;root@lvm:/home/vagrant[root@lvm vagrant]# ls -al /home
+total 0
+drwxr-xr-x.  3 root    root    292 Jun  1 20:33 [0m[38;5;27m.[0m
+drwxr-xr-x. 18 root    root    239 Jun  1 20:22 [38;5;27m..[0m
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file1
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file10
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file11
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file12
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file13
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file14
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file15
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file16
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file17
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file18
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file19
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file2
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file20
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file3
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file4
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file5
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file6
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file7
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file8
+-rw-r--r--.  1 root    root      0 Jun  1 20:33 file9
+drwx------.  3 vagrant vagrant  87 Jun  1 20:08 [38;5;27mvagrant[0m
+]0;root@lvm:/home/vagrant[root@lvm vagrant]# exit
+exit
+
+Script done on Sat 01 Jun 2024 08:35:21 PM UTC

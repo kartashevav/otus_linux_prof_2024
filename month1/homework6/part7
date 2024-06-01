@@ -1,0 +1,45 @@
+Script started on Sat 01 Jun 2024 08:24:22 PM UTC
+]0;root@lvm:/home/vagrant[?1034h[root@lvm vagrant]# exitchroot /mnt/for i in /proc/ /sys/ /dev/ /run/ /boot/;  do mount --bind $i /mnt/$i; done[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cchroot /mnt/[K
+]0;root@lvm:/[?1034h[root@lvm /]#  pvcreate /dev/sdc /dev/sdd
+  Physical volume "/dev/sdc" successfully created.
+  Physical volume "/dev/sdd" successfully created.
+]0;root@lvm:/[root@lvm /]#  vgcreate vg_var /dev/sdc /dev/sdd
+  Volume group "vg_var" successfully created
+]0;root@lvm:/[root@lvm /]# lvcreate -L 950M -m1 -n lv_var vg_var
+  Rounding up size to full physical extent 952.00 MiB
+  Logical volume "lv_var" created.
+]0;root@lvm:/[root@lvm /]# mkfs.ext4 /dev/vg_var/lv_var
+mke2fs 1.42.9 (28-Dec-2013)
+Filesystem label=
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+Stride=0 blocks, Stripe width=0 blocks
+60928 inodes, 243712 blocks
+12185 blocks (5.00%) reserved for the super user
+First data block=0
+Maximum filesystem blocks=249561088
+8 block groups
+32768 blocks per group, 32768 fragments per group
+7616 inodes per group
+Superblock backups stored on blocks: 
+	32768, 98304, 163840, 229376
+
+Allocating group tables: 0/8   done                            
+Writing inode tables: 0/8   done                            
+Creating journal (4096 blocks): done
+Writing superblocks and filesystem accounting information: 0/8   done
+
+]0;root@lvm:/[root@lvm /]# mount /dev/vg_var/lv_var /mnt
+]0;root@lvm:/[root@lvm /]# cp -aR /var/* /mnt/
+]0;root@lvm:/[root@lvm /]# mkdir /tmp/oldvar && mv /var/* /tmp/oldvar
+]0;root@lvm:/[root@lvm /]# umount /mnt
+]0;root@lvm:/[root@lvm /]# mount /dev/vg_var/lv_var /var
+]0;root@lvm:/[root@lvm /]# echo "`blkid | grep var: | awk '{print $2}'` \
+>  /var ext4 defaults 0 0" >> /etc/fstab
+]0;root@lvm:/[root@lvm /]# exit
+exit
+]0;root@lvm:/home/vagrant[root@lvm vagrant]# exit
+exit
+
+Script done on Sat 01 Jun 2024 08:26:16 PM UTC

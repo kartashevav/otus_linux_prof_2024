@@ -1,0 +1,48 @@
+Script started on Sat 01 Jun 2024 08:13:14 PM UTC
+]0;root@lvm:/home/vagrant[?1034h[root@lvm vagrant]# xfsdump -J - /dev/VolGroup00/LogVol00 | xfsrestore -J - /mnt
+xfsdump: using file dump (drive_simple) strategy
+xfsdump: version 3.1.7 (dump format 3.0)
+xfsdump: level 0 dump of lvm:/
+xfsdump: dump date: Sat Jun  1 20:13:27 2024
+xfsdump: session id: 4b5220b8-9993-4d1f-81b4-cebeccd0d795
+xfsdump: session label: ""
+xfsrestore: using file dump (drive_simple) strategy
+xfsrestore: version 3.1.7 (dump format 3.0)
+xfsrestore: searching media for dump
+xfsdump: ino map phase 1: constructing initial dump list
+xfsdump: ino map phase 2: skipping (no pruning necessary)
+xfsdump: ino map phase 3: skipping (only one dump stream)
+xfsdump: ino map construction complete
+xfsdump: estimated dump size: 902804416 bytes
+xfsdump: creating dump session media file 0 (media 0, file 0)
+xfsdump: dumping ino map
+xfsdump: dumping directories
+xfsrestore: examining media file 0
+xfsrestore: dump description: 
+xfsrestore: hostname: lvm
+xfsrestore: mount point: /
+xfsrestore: volume: /dev/mapper/VolGroup00-LogVol00
+xfsrestore: session time: Sat Jun  1 20:13:27 2024
+xfsrestore: level: 0
+xfsrestore: session label: ""
+xfsrestore: media label: ""
+xfsrestore: file system id: b60e9498-0baa-4d9f-90aa-069048217fee
+xfsrestore: session id: 4b5220b8-9993-4d1f-81b4-cebeccd0d795
+xfsrestore: media id: 4b6b95ba-932d-45e8-895a-61639b1ead78
+xfsrestore: searching media for directory dump
+xfsrestore: reading directories
+xfsdump: dumping non-directory files
+xfsrestore: 2699 directories and 23619 entries processed
+xfsrestore: directory post-processing
+xfsrestore: restoring non-directory files
+xfsdump: ending media file
+xfsdump: media file size 879862224 bytes
+xfsdump: dump size (non-dir files) : 866690488 bytes
+xfsdump: dump complete: 8 seconds elapsed
+xfsdump: Dump Status: SUCCESS
+xfsrestore: restore complete: 9 seconds elapsed
+xfsrestore: Restore Status: SUCCESS
+]0;root@lvm:/home/vagrant[root@lvm vagrant]# exit
+exit
+
+Script done on Sat 01 Jun 2024 08:13:39 PM UTC
