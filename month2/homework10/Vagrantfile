@@ -1,0 +1,17 @@
+# -*- mode: ruby -*-
+# vim: set ft=ruby :
+Vagrant.configure("2") do |config|
+    config.vm.box = "almalinux/9"
+    config.vm.box_version = "9.3.20231118"
+    config.vm.provision "shell", inline: <<-SHELL
+              yum install -y nginx createrepo
+              mkdir /usr/share/nginx/html/repo
+              cp /vagrant/*.rpm /usr/share/nginx/html/repo/
+              createrepo /usr/share/nginx/html/repo/
+              sed -i '/server {/a autoindex on;' /etc/nginx/nginx.conf
+              sed -i '/server {/a index index.html index.htm;' /etc/nginx/nginx.conf
+              systemctl start nginx
+              curl -a http://localhost/repo/
+            SHELL
+    
+      end
