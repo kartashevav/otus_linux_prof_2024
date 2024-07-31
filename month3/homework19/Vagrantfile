@@ -1,0 +1,51 @@
+# -*- mode: ruby -*-
+# vim: set ft=ruby :
+
+MACHINES = {
+  :docker => {
+        :box_name => "generic/ubuntu2204",
+        :vm_name => "docker",
+  }
+}
+
+Vagrant.configure("2") do |config|
+
+  MACHINES.each do |boxname, boxconfig|
+    config.vm.synced_folder ".", "/vagrant"
+    config.vm.define boxname do |box|
+   
+      box.vm.box = boxconfig[:box_name]
+      box.vm.host_name = boxconfig[:vm_name]
+      
+      box.vm.provider "virtualbox" do |v|
+        v.memory = 2048
+        v.cpus = 1
+       end
+       box.vm.provision "shell", inline: <<-SHELL
+        for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
+        # Add Docker's official GPG key:
+        sudo apt-get update
+        sudo apt-get install ca-certificates curl
+        sudo install -m 0755 -d /etc/apt/keyrings
+        sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+        sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+        # Add the repository to Apt sources:
+        echo \
+          "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+          $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+          sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt-get update
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        docker compose version
+        sudo printf 'FROM nginx:stable-alpine\nCOPY ./index.html /usr/share/nginx/html/index.html\n' > /home/vagrant/Dockerfile
+        sudo cp /vagrant/index.html /home/vagrant/
+        sudo docker build -t nginx-alpine .
+        sudo docker run -d --name nginx-alpine -p 80:80 nginx-alpine
+        sudo docker ps
+        curl localhost
+     SHELL
+
+    end
+  end
+end
