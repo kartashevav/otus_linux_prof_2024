@@ -1,0 +1,35 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/ubuntu2204"
+  config.vm.provider :"virtualbox" do |v|
+    v.memory = 1512
+    v.cpus = 2
+  end
+  config.vm.define "backup" do |backup|
+    backup.vm.network "private_network", ip: "192.168.11.160", virtualbox__intnet: "net1"
+    backup.vm.hostname = "backup"
+    backup.vm.disk :disk, name: "backup", size: "2GB"
+    backup.vm.provision "shell", inline: <<-SHELL
+    sudo apt update && apt install -y borgbackup
+    sudo pvcreate /dev/sdb
+    sudo vgcreate backup /dev/sdb
+    sudo lvcreate -n vol_backups -l 100%FREE backup
+    sudo mkfs.ext4 /dev/backup/vol_backups
+    sudo mkdir /var/backup
+    sudo mount /dev/backup/vol_backups /var/backup
+    sudo useradd -m borg
+    sudo chown borg:borg /var/backup/
+    sudo touch /home/borg/.ssh/authorized_keys
+    sudo chown -R borg:borg /home/borg
+    sudo chmod 700 /home/borg/.ssh
+    sudo chmod 600 /home/borg/.ssh/authorized_keys
+    SHELL
+  end
+
+  config.vm.define "client" do |client|
+    client.vm.network "private_network", ip: "192.168.11.150", virtualbox__intnet: "net1"
+    client.vm.hostname = "client"
+    client.vm.provision "shell", inline: <<-SHELL
+    sudo apt update && apt install -y borgbackup
+    SHELL
+  end
+end
