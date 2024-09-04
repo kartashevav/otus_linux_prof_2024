@@ -1,5 +1,5 @@
 MACHINES = {
-  :  => {
+  :inetRouter  => {
         :box_name => "generic/ubuntu2204",
         :vm_name => "inetRouter",
         :net => [   
