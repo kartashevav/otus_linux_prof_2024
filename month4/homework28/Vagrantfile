@@ -1,11 +1,10 @@
 MACHINES = {
-  :inetRouter => {
+  :  => {
         :box_name => "generic/ubuntu2204",
         :vm_name => "inetRouter",
-        #:public => {:ip => "10.10.10.1", :adapter => 1},
         :net => [   
-                    #ip, adpter, netmask, virtualbox__intnet
-                    ["192.168.255.1", 2, "255.255.255.252",  "router-net"], 
+                    ["192.168.255.1", 2, "255.255.255.252",  "router-net"],
+                    ["192.168.50.1", 3, "255.255.255.0",  "ansible"],
                 ]
   },
 
@@ -19,6 +18,7 @@ MACHINES = {
                    ["192.168.0.65",   5, "255.255.255.192",  "mgt-net"],
                    ["192.168.255.9",  6, "255.255.255.252",  "office1-central"],
                    ["192.168.255.5",  7, "255.255.255.252",  "office2-central"],
+                   ["192.168.50.2", 8, "255.255.255.0",  "ansible"],
                 ]
   },
 
@@ -27,6 +27,7 @@ MACHINES = {
         :vm_name => "centralServer",
         :net => [
                    ["192.168.0.2",    2, "255.255.255.240",  "dir-net"],
+                   ["192.168.50.3", 3, "255.255.255.0",  "ansible"],
                 ]
   },
 
@@ -39,6 +40,7 @@ MACHINES = {
                    ["192.168.2.65",    4,  "255.255.255.192",  "test1-net"],
                    ["192.168.2.129",   5,  "255.255.255.192",  "managers-net"],
                    ["192.168.2.193",   6,  "255.255.255.192",  "office1-net"],
+                   ["192.168.50.4", 7, "255.255.255.0",  "ansible"],
                 ]
   },
 
@@ -47,6 +49,7 @@ MACHINES = {
         :vm_name => "office1Server",
         :net => [
                    ["192.168.2.130",  2,  "255.255.255.192",  "managers-net"],
+                   ["192.168.50.5", 3, "255.255.255.0",  "ansible"],
                 ]
   },
 
@@ -58,6 +61,7 @@ MACHINES = {
                    ["192.168.1.1",    3,  "255.255.255.128",  "dev2-net"],
                    ["192.168.1.129",  4,  "255.255.255.192",  "test2-net"],
                    ["192.168.1.193",  5,  "255.255.255.192",  "office2-net"],
+                   ["192.168.50.6", 6, "255.255.255.0",  "ansible"],
                ]
   },
 
@@ -66,6 +70,7 @@ MACHINES = {
        :vm_name => "office2Server",
        :net => [
                   ["192.168.1.2",    2,  "255.255.255.128",  "dev2-net"],
+                  ["192.168.50.7", 3, "255.255.255.0",  "ansible"],
                ]
   }
 }
@@ -95,8 +100,6 @@ Vagrant.configure("2") do |config|
         sudo apt install net-tools
         sudo systemctl stop ufw
         sudo systemctl disable ufw
-        sudo echo "net.ipv4.conf.all.forwarding = 1" >> /etc/sysctl.conf
-        sudo sysctl -p
         sudo apt install -y traceroute
 
       SHELL
