@@ -1,0 +1,20 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "alvistack/ubuntu-24.04"
+  config.vm.host_name = "ansible-server"
+  config.vm.network "forwarded_port", guest: 22, host: 3022
+  config.vm.network "private_network", ip: "192.168.50.100", netmask: "255.255.255.0", virtualbox__intnet: "ansible"
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "2048"
+    vb.cpus = "1"
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    sudo apt-get install net-tools
+
+  SHELL
+end

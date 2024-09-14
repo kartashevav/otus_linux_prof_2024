@@ -1,0 +1,66 @@
+---
+- hosts: all # part running on all hosts
+  become: true
+  tasks:
+  - name: Disable the ufw firewall (on Ubuntu, if configured).
+    service:
+      name: ufw
+      state: stopped
+      enabled: false
+  - name: Update the repository cache and install dnsmasq
+    ansible.builtin.apt:
+      name: dnsmasq
+      update_cache: yes
+  - name: Install apache httpd 
+    ansible.builtin.apt:
+      name: apache2
+  - name: Creates directory /srv/tftp
+    ansible.builtin.file:
+      path: /srv/tftp
+      state: directory
+  - name: download and unarchive ubuntu-24.04.1-netboot
+    ansible.builtin.unarchive:
+      src: https://releases.ubuntu.com/noble/ubuntu-24.04.1-netboot-amd64.tar.gz
+      dest: /srv/tftp
+      remote_src: yes
+  - name: config dnsmasq
+    template: 
+      src: pxe.conf
+      dest: /etc/dnsmasq.d/pxe.conf
+      owner: root
+      group: root
+      mode: 0644
+  - name: Creates directory /srv/images
+    ansible.builtin.file:
+      path: /srv/images
+      state: directory
+  - name: Download Ubuntu iso
+    ansible.builtin.get_url:
+      url: https://releases.ubuntu.com/noble/ubuntu-24.04.1-live-server-amd64.iso
+      dest: /srv/images/ubuntu-24.04.1-live-server-amd64.iso
+      mode: 0644
+  - name: config Apache
+    template: 
+      src: ks-server.conf
+      dest: /etc/apache2/sites-available/ks-server.conf
+      mode: 0644
+  - name: enable apache site ks-server
+    ansible.builtin.command: a2ensite ks-server.conf
+  - name: config pxe
+    template: 
+      src: default
+      dest: /srv/tftp/amd64/pxelinux.cfg/default
+      mode: 0644
+  - name: Creates directory /srv/ks
+    ansible.builtin.file:
+      path: /srv/ks
+      state: directory
+  - name: copy user-data
+    template: 
+      src: user-data
+      dest: /srv/ks/user-data
+      mode: 0644
+  - name: create meta-data
+    ansible.builtin.command: touch /srv/ks/meta-data
+  - name: restart apache2
+    ansible.builtin.command: systemctl restart apache2
