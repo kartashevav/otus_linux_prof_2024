@@ -1,0 +1,76 @@
+---
+- hosts: all # part running on all hosts
+  become: true
+  tasks:
+  - name: Set up NAT on inetRouter
+    template: 
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: root
+      group: root
+      mode: "{{ item.mode }}"
+    with_items:
+      - { src: "iptables_rules.ipv4", dest: "/etc/iptables_rules.ipv4", mode: "0644" }
+      - { src: "iptables_restore", dest: "/etc/network/if-pre-up.d/iptables", mode: "0755" }
+    when: (ansible_hostname == "inetRouter")
+  - name: Set up NAT on inetRouter2
+    template: 
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: root
+      group: root
+      mode: "{{ item.mode }}"
+    with_items:
+      - { src: "iptables_rules_inetRouter2.ipv4", dest: "/etc/iptables_rules.ipv4", mode: "0644" }
+      - { src: "iptables_restore", dest: "/etc/network/if-pre-up.d/iptables", mode: "0755" }
+    when: (ansible_hostname == "inetRouter2")
+  - name: restore firewall state from a file
+    community.general.iptables_state:
+      state: restored
+      path: /etc/iptables_rules.ipv4
+    when: (inventory_hostname in groups["inet_routers"])
+  - name: set up forward packages across routers
+    sysctl:
+      name: net.ipv4.conf.all.forwarding
+      value: '1'
+      state: present
+    when: (inventory_hostname not in groups["servers"])
+  - name: disable default route
+    template: 
+      src: 00-installer-config.yaml
+      dest: /etc/netplan/00-installer-config.yaml
+      owner: root
+      group: root
+      mode: 0644
+    when: (inventory_hostname not in groups["inet_routers"])
+  - name: disable eth0 on centralRouter
+    template: 
+      src: 00-installer-config-disable-eth0.yaml
+      dest: /etc/netplan/00-installer-config.yaml
+      owner: root
+      group: root
+      mode: 0644
+    when: ((ansible_hostname == "centralRouter"))
+  - name: disable eth0 on centralServer
+    template: 
+      src: 00-installer-config-disable-eth0.yaml
+      dest: /etc/netplan/00-installer-config.yaml
+      owner: root
+      group: root
+      mode: 0644
+    when: ((ansible_hostname == "centralServer"))
+  - name: add default gateway
+    template: 
+      src: "50-vagrant_{{ansible_hostname}}.yaml"
+      dest: /etc/netplan/50-vagrant.yaml
+      owner: root
+      group: root
+      mode: 0644
+  - name: netplan apply
+    ansible.builtin.command: netplan apply
+  - name: install nginx on centralServer
+    ansible.builtin.apt:
+      name: nginx
+      update_cache: yes
+    when: (ansible_hostname == "centralServer")
+

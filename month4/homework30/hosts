@@ -1,0 +1,15 @@
+[all:vars]
+ansible_connection=ssh
+ansible_user=vagrant
+ansible_ssh_pass=vagrant
+[inet_routers]
+inetRouter ansible_host=192.168.50.1
+inetRouter2 ansible_host=192.168.50.8
+[routers]
+centralRouter ansible_host=192.168.50.2
+office1Router ansible_host=192.168.50.4
+office2Router ansible_host=192.168.50.6
+[servers]
+centralServer ansible_host=192.168.50.3
+office1Server ansible_host=192.168.50.5
+office2Server ansible_host=192.168.50.7
