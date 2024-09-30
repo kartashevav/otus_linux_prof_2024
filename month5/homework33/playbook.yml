@@ -1,0 +1,59 @@
+---
+- hosts: all # part running on all hosts
+  become: true
+  tasks:
+  - name: install tools
+    ansible.builtin.apt:
+      pkg:
+      - traceroute
+      - tcpdump
+      - net-tools
+      update_cache: yes
+  - name: Disable the ufw firewall (on Ubuntu, if configured).
+    service:
+      name: ufw
+      state: stopped
+      enabled: false
+  - name: add gpg key
+    ansible.builtin.apt_key:
+      url: https://deb.frrouting.org/frr/keys.asc
+      state: present
+  - name: add repo
+    ansible.builtin.command: echo deb https://deb.frrouting.org/frr $(lsb_release -s -c) frr-stable > /etc/apt/sources.list.d/frr.list
+  - name: install frr
+    ansible.builtin.apt:
+      pkg:
+      - frr
+      - frr-pythontools
+  - name: set up forward packages across routers
+    sysctl:
+      name: net.ipv4.conf.all.forwarding
+      value: '1'
+      state: present
+  - name: set up asynchronous routing
+    sysctl:
+      name: net.ipv4.conf.all.rp_filter
+      value: '0'
+      state: present
+  - name: base set up OSPF 
+    template:
+      src: daemons
+      dest: /etc/frr/daemons
+      owner: frr
+      group: frr
+      mode: 0640
+  - name: set up OSPF 
+    template:
+      src: frr.conf.j2
+      dest: /etc/frr/frr.conf
+      owner: frr
+      group: frr
+      mode: 0640
+  - name: restart FRR
+    service:
+      name: frr
+      state: restarted
+      enabled: true
+
+
+  
