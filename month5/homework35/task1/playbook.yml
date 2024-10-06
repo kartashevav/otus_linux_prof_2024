@@ -1,0 +1,65 @@
+---
+- hosts: all # part running on all hosts
+  become: true
+  tasks:
+  - name: install tools
+    ansible.builtin.apt:
+      pkg:
+      - openvpn
+      - iperf3
+      - selinux-utils
+      - easy-rsa
+      update_cache: yes
+  - name: create key
+    ansible.builtin.command: openvpn --genkey secret /etc/openvpn/static.key
+    when: (ansible_hostname == "server")
+  - name: copy key to synced folder
+    ansible.builtin.copy: 
+      src: /etc/openvpn/static.key
+      dest: /vagrant/static.key
+      owner: root
+      group: root
+      mode: 0644
+      remote_src: yes
+    when: (ansible_hostname == "server")
+  - name: copy server config
+    template: 
+      src: server_server.conf
+      dest: /etc/openvpn/server.conf
+      owner: root
+      group: root
+      mode: 0644
+    when: (ansible_hostname == "server")
+  - name: copy client config
+    template: 
+      src: client_server.conf
+      dest: /etc/openvpn/server.conf
+      owner: root
+      group: root
+      mode: 0644
+    when: (ansible_hostname == "client")
+  - name: copy key from synced folder
+    ansible.builtin.copy: 
+      src: /vagrant/static.key
+      dest: /etc/openvpn/static.key
+      owner: root
+      group: root
+      mode: 0644
+      remote_src: yes
+    when: (ansible_hostname == "client")
+  - name: copy Unit config
+    template: 
+      src: openvpn@service
+      dest: /etc/systemd/system/openvpn@.service
+      owner: root
+      group: root
+      mode: 0644
+  - name: systemctl daemon-reload
+    ansible.builtin.command: systemctl daemon-reload
+  - name: enable ovpn-service
+    ansible.builtin.command: systemctl enable openvpn@server
+  - name: restart ovpn-service
+    ansible.builtin.command: systemctl restart openvpn@server
+
+
+  

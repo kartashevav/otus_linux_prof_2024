@@ -1,0 +1,148 @@
+---
+- hosts: all # part running on all hosts
+  become: true
+  tasks:
+  - name: install tools
+    ansible.builtin.apt:
+      pkg:
+      - openvpn
+      - iperf3
+      - selinux-utils
+      - easy-rsa
+      update_cache: yes
+  - name: init PKI
+    ansible.builtin.command: /usr/share/easy-rsa/easyrsa init-pki
+    args:
+      chdir: /etc/openvpn
+    when: (ansible_hostname == "server")
+  - name: build-ca
+    ansible.builtin.shell: echo "serverovpn" | /usr/share/easy-rsa/easyrsa build-ca nopass
+    args:
+      chdir: /etc/openvpn
+    when: (ansible_hostname == "server")
+  - name: build-server-full
+    ansible.builtin.command: /usr/share/easy-rsa/easyrsa build-server-full server-ovpn nopass
+    args:
+      chdir: /etc/openvpn
+    when: (ansible_hostname == "server")
+  - name: build-client-full
+    ansible.builtin.command: /usr/share/easy-rsa/easyrsa build-client-full client nopass
+    args:
+      chdir: /etc/openvpn
+    when: (ansible_hostname == "server")
+  - name: gen-dh
+    ansible.builtin.command: /usr/share/easy-rsa/easyrsa gen-dh
+    args:
+      chdir: /etc/openvpn
+    when: (ansible_hostname == "server")
+  - name: genkey CA
+    ansible.builtin.command: openvpn --genkey secret ta.key
+    args:
+      chdir: /etc/openvpn
+    when: (ansible_hostname == "server")
+  - name: copy ca.crt to synced folder
+    ansible.builtin.copy: 
+      src: /etc/openvpn/pki/ca.crt
+      dest: /vagrant/ca.crt
+      owner: root
+      group: root
+      mode: 0644
+      remote_src: yes
+    when: (ansible_hostname == "server")
+  - name: copy client cert to synced folder
+    ansible.builtin.copy: 
+      src: /etc/openvpn/pki/issued/client.crt
+      dest: /vagrant/client.crt
+      owner: root
+      group: root
+      mode: 0644
+      remote_src: yes
+    when: (ansible_hostname == "server")
+  - name: copy client key to synced folder
+    ansible.builtin.copy: 
+      src: /etc/openvpn/pki/private/client.key
+      dest: /vagrant/client.key
+      owner: root
+      group: root
+      mode: 0644
+      remote_src: yes
+    when: (ansible_hostname == "server")
+  - name: copy ta.key to synced folder
+    ansible.builtin.copy: 
+      src: /etc/openvpn/ta.key
+      dest: /vagrant/ta.key
+      owner: root
+      group: root
+      mode: 0644
+      remote_src: yes
+    when: (ansible_hostname == "server")
+  - name: copy server config
+    template: 
+      src: server_server.conf
+      dest: /etc/openvpn/server.conf
+      owner: root
+      group: root
+      mode: 0644
+    when: (ansible_hostname == "server")
+  - name: copy client config
+    template: 
+      src: client_server.conf
+      dest: /etc/openvpn/server.conf
+      owner: root
+      group: root
+      mode: 0644
+    when: (ansible_hostname == "client")
+  - name: copy ca.crt from synced folder
+    ansible.builtin.copy: 
+      src: /vagrant/ca.crt
+      dest: /etc/openvpn/ca.crt
+      owner: root
+      group: root
+      mode: 0644
+      remote_src: yes
+    when: (ansible_hostname == "client")
+  - name: copy client cert from synced folder
+    ansible.builtin.copy: 
+      src: /vagrant/client.crt
+      dest: /etc/openvpn/client.crt
+      owner: root
+      group: root
+      mode: 0644
+      remote_src: yes
+    when: (ansible_hostname == "client")
+  - name: copy client key from synced folder
+    ansible.builtin.copy: 
+      src: /vagrant/client.key
+      dest: /etc/openvpn/client.key
+      owner: root
+      group: root
+      mode: 0644
+      remote_src: yes
+    when: (ansible_hostname == "client")
+  - name: copy client cert and key from synced folder
+    ansible.builtin.copy: 
+      src: /vagrant/ta.key
+      dest: /etc/openvpn/ta.key
+      owner: root
+      group: root
+      mode: 0644
+      remote_src: yes
+    when: (ansible_hostname == "client")
+  - name: copy Unit config
+    template: 
+      src: openvpn@.service
+      dest: /etc/systemd/system/openvpn@.service
+      owner: root
+      group: root
+      mode: 0644
+  - name: systemctl daemon-reload
+    ansible.builtin.command: systemctl daemon-reload
+  - name: enable ovpn-service
+    ansible.builtin.command: systemctl enable openvpn@server
+  - name: restart ovpn-service
+    ansible.builtin.command: systemctl restart openvpn@server
+
+  
+
+
+  
