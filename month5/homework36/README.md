@@ -98,6 +98,7 @@ ns02.dns.lab.           3600    IN      A       192.168.50.11
 ### Настройка Split-DNS
 Меняем файлы настроке DNS серверов согласно методичке, запускаем ansible playbook.
 Проверяем на клиентах.
+
 На client просто ping, проверяем что ему доступна зона newdns.lab и один хост web1 в зоне dns.lab
 ```
 [root@client ~]# ping www.newdns.lab
