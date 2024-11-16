@@ -1,0 +1,17 @@
+---
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth1:
+      dhcp4: no
+    eth2:
+      dhcp4: no
+  bonds:
+    bond0:
+      interfaces: [eth1, eth2]
+      addresses: [{{ bond_ip }}/30]
+      parameters:
+        mode: 802.3ad
+        transmit-hash-policy: layer3+4
+        mii-monitor-interval: 1

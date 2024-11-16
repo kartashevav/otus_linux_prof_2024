@@ -1,0 +1,105 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/ubuntu2204"
+  
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 1024
+    v.cpus = 1
+  end
+  
+  config.vm.define "inetRouter" do |inetRouter|
+    inetRouter.vm.box = "centos/8"
+    inetRouter.vm.network "private_network", adapter: 2, auto_config: false, virtualbox__intnet: "router-net"
+    inetRouter.vm.network "private_network", adapter: 3, auto_config: false, virtualbox__intnet: "router-net"
+    inetRouter.vm.network "private_network", ip: '192.168.50.10', adapter: 8, virtualbox__intnet: "ansible"
+    inetRouter.vm.hostname = "inetRouter"
+    inetRouter.vm.provision "shell", inline: <<-SHELL
+        sed -i.bak 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+        sed -i.bak 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* 
+        sudo yum install -y vim traceroute tcpdump net-tools
+        sed -i 's/^#PasswordAuthentication.*$/PasswordAuthentication yes/' /etc/ssh/sshd_config
+        systemctl restart sshd.service
+      SHELL
+  end
+
+  config.vm.define "centralRouter" do |centralRouter|
+    centralRouter.vm.box = "centos/8"
+    centralRouter.vm.network "private_network", adapter: 2, auto_config: false, virtualbox__intnet: "router-net"
+    centralRouter.vm.network "private_network", adapter: 3, auto_config: false, virtualbox__intnet: "router-net"
+    centralRouter.vm.network "private_network", ip: '192.168.255.9', adapter: 6, netmask: "255.255.255.252", virtualbox__intnet: "office1-central"
+    centralRouter.vm.network "private_network", ip: '192.168.50.11', adapter: 8, virtualbox__intnet: "ansible"
+    centralRouter.vm.hostname = "centralRouter"
+    centralRouter.vm.provision "shell", inline: <<-SHELL
+        sed -i.bak 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+        sed -i.bak 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* 
+        sudo yum install -y vim traceroute tcpdump net-tools
+        sed -i 's/^#PasswordAuthentication.*$/PasswordAuthentication yes/' /etc/ssh/sshd_config
+        systemctl restart sshd.service
+      SHELL
+  end
+  
+  config.vm.define "office1Router" do |office1Router|
+    office1Router.vm.network "private_network", ip: '192.168.255.10', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "office1-central"
+    office1Router.vm.network "private_network", adapter: 3, auto_config: false, virtualbox__intnet: "vlan1"
+    office1Router.vm.network "private_network", adapter: 4, auto_config: false, virtualbox__intnet: "vlan1"
+    office1Router.vm.network "private_network", adapter: 5, auto_config: false, virtualbox__intnet: "vlan2"
+    office1Router.vm.network "private_network", adapter: 6, auto_config: false, virtualbox__intnet: "vlan2"
+    office1Router.vm.network "private_network", ip: '192.168.50.20', adapter: 8, virtualbox__intnet: "ansible"
+    office1Router.vm.hostname = "office1Router"
+    office1Router.vm.provision "shell", inline: <<-SHELL
+        sudo apt install net-tools
+        sudo systemctl stop ufw
+        sudo systemctl disable ufw
+        sudo apt install -y traceroute
+      SHELL
+  end
+
+  config.vm.define "testClient1" do |testClient1|
+    testClient1.vm.network "private_network", adapter: 2, auto_config: false, virtualbox__intnet: "testLAN"
+    testClient1.vm.network "private_network", ip: '192.168.50.21', adapter: 8, virtualbox__intnet: "ansible"
+    testClient1.vm.hostname = "testClient1"
+    testClient1.vm.provision "shell", inline: <<-SHELL
+        sudo apt install net-tools
+        sudo systemctl stop ufw
+        sudo systemctl disable ufw
+        sudo apt install -y traceroute
+      SHELL
+  end
+
+  config.vm.define "testServer1" do |testServer1|
+    testServer1.vm.network "private_network", adapter: 2, auto_config: false, virtualbox__intnet: "testLAN"
+    testServer1.vm.network "private_network", ip: '192.168.50.22', adapter: 8, virtualbox__intnet: "ansible"
+    testServer1.vm.hostname = "testServer1"
+    testServer1.vm.provision "shell", inline: <<-SHELL
+        sudo apt install net-tools
+        sudo systemctl stop ufw
+        sudo systemctl disable ufw
+        sudo apt install -y traceroute
+      SHELL
+  end
+
+  config.vm.define "testClient2" do |testClient2|
+    testClient2.vm.network "private_network", ip: '10.168.50.31', adapter: 2, auto_config: false, virtualbox__intnet: "testLAN"
+    testClient2.vm.network "private_network", ip: '192.168.50.31', adapter: 8, virtualbox__intnet: "ansible"
+    testClient2.vm.hostname = "testClient2"
+    testClient2.vm.provision "shell", inline: <<-SHELL
+        sudo apt install net-tools
+        sudo systemctl stop ufw
+        sudo systemctl disable ufw
+        sudo apt install -y traceroute
+      SHELL
+  end
+  
+  config.vm.define "testServer2" do |testServer2|
+    testServer2.vm.network "private_network", adapter: 2, auto_config: false, virtualbox__intnet: "testLAN"
+    testServer2.vm.network "private_network", ip: '192.168.50.32', adapter: 8, virtualbox__intnet: "ansible"
+    testServer2.vm.hostname = "testServer2"
+    testServer2.vm.provision "shell", inline: <<-SHELL
+        sudo apt install net-tools
+        sudo systemctl stop ufw
+        sudo systemctl disable ufw
+        sudo apt install -y traceroute
+      SHELL
+  end
+
+
+end
