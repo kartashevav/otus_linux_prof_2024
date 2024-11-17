@@ -1,7 +1,10 @@
 ### 1. Настройка VLAN на хостах
 В моем стенде используются 2 машины на Centos 8 и 5 машин на Ubuntu 22
-VLAN настраиваем на ubuntu, после запуска playbook проверяем статус интерфейсов и ip саязность
+
+VLAN настраиваем на ubuntu, после запуска playbook проверяем статус интерфейсов и ip связность
+
 vlan 2 между testClient1 и testServer1
+
 vlan 3 между testClient2 и testServer2
 ```
 root@testClient1:~# ip a
@@ -134,6 +137,7 @@ root@testClient2:~# arp -a
 Связность по vlan3 работает.
 
 ### 2. Настройка LACP между хостами inetRouter и centralRouter
+LACP настраиваем на Centos
 После запуска playbook проверяем интерфейсы и работу bond
 ```
 [root@inetRouter ~]# ip a
