@@ -138,6 +138,7 @@ root@testClient2:~# arp -a
 
 ### 2. Настройка LACP между хостами inetRouter и centralRouter
 LACP настраиваем на Centos
+
 После запуска playbook проверяем интерфейсы и работу bond
 ```
 [root@inetRouter ~]# ip a
